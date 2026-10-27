@@ -50,10 +50,25 @@ p { margin: 0; max-width: 68ch; }
 section.part { display: flex; flex-direction: column; gap: 14px; border-top: 3px solid var(--fg); padding-top: 22px; scroll-margin-top: 16px; }
 section.part > .eyebrow { margin-bottom: -8px; }
 
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
-.stats div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; align-items: start; }
+.stats details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.stats details[open] { border-color: var(--green); }
+.stats summary { list-style: none; cursor: pointer; padding: 16px; display: flex; flex-direction: column; gap: 4px; border-radius: 10px; }
+.stats summary::-webkit-details-marker { display: none; }
+.stats summary:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 .stats b { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); line-height: 1.1; }
 .stats span { font-size: 14px; color: var(--muted); }
+.stats .more { font-size: 12px; font-weight: 600; color: var(--blue); margin-top: 6px; }
+.stats .more::after { content: " ▾"; }
+.stats details[open] .more::after { content: " ▴"; }
+.stats ul { margin: 0; padding: 0 16px 14px 32px; font-size: 14px; display: grid; gap: 3px; border-top: 1px solid var(--line); padding-top: 12px; }
+.stats ul small { color: var(--amber); font-weight: 600; }
+.cc { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 10px; padding: 14px 16px; }
+.cc p { font-size: 14px; color: var(--muted); }
+.cc p b { color: var(--fg); }
+.cc a.btn { background: #0b0b0b; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: 8px; white-space: nowrap; }
+.cc a.btn:hover { background: #2a2f22; }
+.card .where a { color: var(--blue); text-underline-offset: 3px; }
 
 .toc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
 .toc h2 { font-size: 15px; margin-bottom: 4px; }
@@ -146,7 +161,7 @@ def h_blocks(blocks):
                 for s in g["items"]:
                     cls = "card testing" if s["status"] != "Live" else "card"
                     cards.append(
-                        f'<article class="{cls}"><header><div><h4>{e(s["name"])}</h4><div class="where">{e(s["where"])}</div></div>'
+                        f'<article class="{cls}"><header><div><h4>{e(s["name"])}</h4><div class="where">{where_html(s["where"])}</div></div>'
                         f'<span class="pill">{e(s["status"])}</span></header><p>{e(s["what"])}</p><dl>'
                         f'<dt>Who uses it</dt><dd>{e(s["who"])}</dd><dt>When</dt><dd>{e(s["when"])}</dd>'
                         f'<dt>If it stops</dt><dd>{e(s["stop"])}</dd></dl></article>')
@@ -154,9 +169,46 @@ def h_blocks(blocks):
     return "\n".join(out)
 
 
+def where_html(w):
+    # Only the physiqueacademy.com addresses become links; each one has its own login.
+    if "physiqueacademy.com" in w and " " not in w:
+        return f'<a href="https://{e(w)}" target="_blank" rel="noopener">{e(w)}</a>'
+    return e(w)
+
+
+def find_block(kind, section_id=None):
+    for s in C.SECTIONS:
+        if section_id and s["id"] != section_id:
+            continue
+        for b in s["blocks"]:
+            if b[0] == kind:
+                return b
+
+
+def stat_items(src, html_out=False):
+    if isinstance(src, list):
+        return [e(x) if html_out else x for x in src]
+    if src == "systems":
+        out = []
+        for g in find_block("systems")[1]:
+            for it in g["items"]:
+                tag = "" if it["status"] == "Live" else (f' <small>{e(it["status"])}</small>' if html_out else f' ({it["status"]})')
+                parts = f' ({it["parts"]} parts)' if it.get("parts") else ""
+                out.append((e(it["name"]) if html_out else it["name"]) + parts + tag)
+        return out
+    if src == "platforms":
+        return [e(r[0]) if html_out else r[0] for r in find_block("table", "platforms")[2]]
+    if src == "reports":
+        return [(f"<b>{e(r[0])}:</b> {e(r[1])}" if html_out else f"{r[0]}: {r[1]}") for r in find_block("table", "rhythm")[2]]
+    return []
+
+
 def build_html():
     toc = "".join(f'<li><a href="#{s["id"]}"><span>{e(s["eyebrow"])}</span><em>{e(s["title"].split(":")[0])}</em></a></li>' for s in C.SECTIONS)
-    stats = "".join(f"<div><b>{e(a)}</b><span>{e(t)}</span></div>" for a, t in C.STATS)
+    stats = "".join(
+        f'<details><summary><b>{e(a)}</b><span>{e(t)}</span><span class="more">Show list</span></summary>'
+        f'<ul>{"".join(f"<li>{x}</li>" for x in stat_items(src, html_out=True))}</ul></details>'
+        for a, t, src in C.STATS)
     parts = "".join(
         f'<section class="part" id="{s["id"]}"><div class="eyebrow">{e(s["eyebrow"])}</div><h2>{e(s["title"])}</h2>{h_blocks(s["blocks"])}</section>'
         for s in C.SECTIONS)
@@ -181,6 +233,7 @@ def build_html():
   </div>
 </header>
 <main>
+  <div class="cc"><p><b>Want to open the dashboards?</b> Every one is linked from your Command Center.</p><a class="btn" href="{C.COMMAND_CENTER}" target="_blank" rel="noopener">Open Command Center</a></div>
   <div class="stats">{stats}</div>
   <nav class="toc" aria-label="On this page"><h2>On this page</h2><p class="hint">Click a section to jump straight to it.</p><ol>{toc}</ol></nav>
   {parts}
@@ -282,7 +335,7 @@ def build_docx():
     p = doc.add_paragraph(); r = p.add_run(C.SUBTITLE); r.font.size = Pt(14); r.font.color.rgb = GREEN
     p = doc.add_paragraph(); r = p.add_run(C.UPDATED); r.font.color.rgb = MUTED
 
-    d_table(doc, ["At a glance", ""], [[a, t] for a, t in C.STATS], [3, 14])
+    d_table(doc, ["At a glance", ""], [[a, t + ":\n" + "\n".join("- " + x for x in stat_items(src))] for a, t, src in C.STATS], [3, 14])
 
     for s in C.SECTIONS:
         title = s["title"] if s["eyebrow"] == "Start here" else f'{s["eyebrow"].replace("Section ", "")}. {s["title"]}'

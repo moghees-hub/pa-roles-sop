@@ -6,13 +6,20 @@
 
 TITLE = "Moghees Siddique"
 SUBTITLE = "Roles, responsibilities and systems at Physique Academy"
-UPDATED = "Updated October 2026"
+UPDATED = "Updated 27 October 2026"
+COMMAND_CENTER = "https://hub.physiqueacademy.com"
 
+# Each stat opens a list when clicked. A string source pulls the list from the content below:
+# "systems" = every system card, "platforms" = the platforms table, "reports" = the "What runs when" table.
 STATS = [
-    ("27", "systems I built and run, online 24/7"),
-    ("3", "Stripe accounts: UK, US and UAE"),
-    ("20+", "platforms I manage, including accounts, access and costs"),
-    ("10+", "automatic reports and alerts going out every day"),
+    ("28", "systems I built and run, online 24/7", "systems"),
+    ("3", "Stripe accounts: UK, US and UAE", [
+        "UK account",
+        "US account (Physique Coaching LLC, our Wyoming company)",
+        "UAE account",
+    ]),
+    ("20+", "platforms I manage, including accounts, access and costs", "platforms"),
+    ("10+", "automatic reports and alerts going out every day", "reports"),
 ]
 
 SECTIONS = [
@@ -48,8 +55,8 @@ SECTIONS = [
                  "records it, the Booked Calls Tracker matches it back to the call, the Commission Tracker credits the salesperson, and "
                  "Incoming Revenue counts it as new cash in GBP."),
                 ("The client gets a coach", "The client is allocated to a coach on Trello. The coach gets an email with the client's details, "
-                 "the client gets their welcome email, and the Master Tracker and ChartMogul are updated. (Moving from Zapier and ActiveCampaign "
-                 "to my own Coach Allocation system, see Section 4.)"),
+                 "the client gets their welcome email, and the Master Tracker and ChartMogul are updated, all by my Coach Allocation system "
+                 "(which replaced the old Zaps and ActiveCampaign automation)."),
                 ("End of day", "At 11:55pm the Daily Stats bot posts the end-of-day sales report: what was sold, by whom, for how much."),
                 ("From then on, the systems look after them", "They appear in their coach's My Clients list with live payment status. Milestones flag "
                  "them at 3 and 5 months. A failed payment alerts the team straight away. If they're due to cancel, the coach sees a warning. "
@@ -98,7 +105,7 @@ SECTIONS = [
                   "(our cloud hosting) and their code is saved in GitHub."),
             ("systems", [
                 {"name": "Money and payments", "items": [
-                    {"name": "Sales Dashboard", "where": "sales.physiqueacademy.com", "status": "Live",
+                    {"name": "Sales Dashboard", "parts": 2, "where": "sales.physiqueacademy.com", "status": "Live",
                      "what": "Live record of every new sale across UK, US and UAE Stripe. A separate recorder listens to Stripe and writes each sale with its salesperson and lead source.",
                      "who": "You, sales team, me", "when": "Instantly on each sale",
                      "stop": "New sales stop appearing. Stripe still takes the money; I re-sync the missing rows."},
@@ -120,7 +127,10 @@ SECTIONS = [
                     {"name": "6-Month Renewals", "where": "Private dashboard", "status": "Live",
                      "what": "Tracks upcoming renewals and paid-in-full clients, and which ones roll on to monthly.",
                      "who": "Me, you", "when": "Live", "stop": "Renewals aren't flagged in time."},
-                    {"name": "Cancellation system", "where": "physiqueacademy.com/refunds-cancellations", "status": "Live",
+                    {"name": "PIF renewal reminders", "where": "DM to each coach", "status": "Testing",
+                     "what": "Tells the coach 30 days before a client's paid-in-full term ends, so the renewal conversation happens in time, and flags clients paying twice.",
+                     "who": "Coaches", "when": "Daily, 9am", "stop": "Coaches aren't reminded; the 6-Month Renewals tracker still shows the list."},
+                    {"name": "Cancellation system", "parts": 2, "where": "physiqueacademy.com/refunds-cancellations", "status": "Live",
                      "what": "Client cancellation form, checks and routing to the coach, Slack alert, the 7-day notice before each payment, a team guide, and a tracker of who has signed the cancellation policy.",
                      "who": "Clients, coaches, Bailey (actions cancellations in Stripe)", "when": "On every request, and 7 days before every payment",
                      "stop": "We lose the paper trail that wins chargebacks."},
@@ -139,13 +149,13 @@ SECTIONS = [
                      "who": "You, me", "when": "Live", "stop": "Close rates can't be measured."},
                     {"name": "Lead Tracker and Lead Gen report", "where": "Private dashboard", "status": "Live",
                      "what": "Tracks Instagram DM leads from both inboxes through to booked calls and sales. Sends the daily Lead Gen report: calls booked, sales and £ per setter, show rate, calls waiting on an outcome, and whether we're ahead or behind.",
-                     "who": "You, Callum, setters", "when": "Live, report at 8am Bali",
+                     "who": "You, Callum, setters (Patrick, Amani and Jan)", "when": "Live, report at 8am Bali",
                      "stop": "No daily view of setter performance."},
                     {"name": "HYROS dashboard", "where": "Private dashboard", "status": "Live",
                      "what": "Shows where new sales really come from (paid ads, Instagram, organic) and booked-call numbers, using HYROS tracking.",
                      "who": "You, marketing", "when": "Live", "stop": "Less visibility on which channels produce sales."},
                     {"name": "Lead Chase", "where": "Private dashboard", "status": "Live",
-                     "what": "List of leads who didn't convert, for follow-up.", "who": "Sales team", "when": "Live",
+                     "what": "Leads who filled in a form but haven't booked a call. Each new one posts to #lead-chase for the lead gen team to chase, and drops off once they book.", "who": "Lead gen team", "when": "Live, booking check every 15 minutes",
                      "stop": "Missed leads aren't followed up."},
                     {"name": "Fathom call summaries", "where": "#fathom-meetings and head coaches channel", "status": "Live",
                      "what": "AI summary of every recorded sales call and head coach 1:1. Head coaches also get their own summaries by DM, and a Friday review of how they ran their 1:1s.",
@@ -169,9 +179,10 @@ SECTIONS = [
                     {"name": "Client Milestones", "where": "Slack", "status": "Live",
                      "what": "Flags clients reaching 3 and 5 months.", "who": "Coaches, team", "when": "Automatic checks",
                      "stop": "Milestone moments are missed."},
-                    {"name": "Coach Allocation", "where": "Trello, email, Client Tracker", "status": "Testing",
-                     "what": "When a new client is moved to a coach on Trello: copies the card to the coach's board, emails the coach, sends the client's welcome email, adds them to the Master Tracker and updates ChartMogul. Also a daily check that marks leavers as Finished. Replaces the coach Zaps and ActiveCampaign.",
-                     "who": "You, coaches, new clients", "when": "Every minute", "stop": "Until go-live the old Zaps still do this job."},
+                    {"name": "Coach Allocation", "where": "Trello, email, Client Tracker", "status": "Live",
+                     "what": "When a new client is moved to a coach on Trello: copies the card to the coach's board, emails the coach, sends the client's welcome email, adds them to the Master Tracker and updates ChartMogul. Also a daily check that marks leavers as Finished. Replaced the coach Zaps and ActiveCampaign.",
+                     "who": "You, coaches, new clients", "when": "Every minute",
+                     "stop": "New clients wait for their coach. Every step is logged, so anything missed is re-run."},
                 ]},
                 {"name": "Owner and team", "items": [
                     {"name": "Command Center", "where": "hub.physiqueacademy.com", "status": "Live",
@@ -200,7 +211,7 @@ SECTIONS = [
         "blocks": [
             ("p", "I set up and look after all of these, including accounts, access and the ongoing costs."),
             ("table", ["Platform", "What it's for"], [
-                ["Railway", "Cloud hosting where all 27 systems run, 24 hours a day, each with its own secure storage."],
+                ["Railway", "Cloud hosting where all 28 systems run, 24 hours a day, each with its own secure storage."],
                 ["GitHub", "Where all the code is stored with a full history, so nothing is lost and any change can be undone."],
                 ["Stripe (UK, US, UAE)", "Every subscription, payment, refund and cancellation. The master record of revenue."],
                 ["ChartMogul", "Subscription analytics: active clients, new and lost per month, and which coach each client belongs to."],
@@ -255,7 +266,7 @@ SECTIONS = [
         "blocks": [
             ("bullets", [
                 ("Klaviyo", "I moved our 24,900+ subscribers from ActiveCampaign to Klaviyo in June 2026 and manage the account, sending domain, lists and guide email flows."),
-                ("ActiveCampaign", "Still runs some booked-call and coach allocation emails. Everything it does is being moved over so it can be switched off when it renews on 31 October 2026."),
+                ("ActiveCampaign", "Still runs some booked-call emails. Coach allocation has already moved off it, and the rest is being moved so it can be switched off when it renews on 31 October 2026."),
                 ("Calendly and Typeform", "The booking system and questionnaires for the mental health calls."),
             ]),
         ],
@@ -278,6 +289,8 @@ SECTIONS = [
                 ("physiqueacademy.com", "Content updates, page embeds, images, speed and mobile experience."),
                 ("Search", "Google Search Console and SEO basics so the site stays visible."),
                 ("Security", "Security hardening across every system (June 2026): logins, secrets, limits and headers."),
+                ("Railway security incident", "In October 2026 our hosting provider had a breach that exposed the keys our systems use. I checked every account for misuse "
+                 "(none found) and have been replacing the keys across all 28 systems, starting with Stripe and the AI keys."),
                 ("Email accounts", "Setting up and managing all Physique Academy email accounts."),
                 ("Domains", "Our domains and DNS, and the subdomains every dashboard lives on."),
             ]),
@@ -333,7 +346,8 @@ SECTIONS = [
         "blocks": [
             ("h3", "In progress now"),
             ("bullets", [
-                ("Coach Allocation go-live", "Switch off the coach Zaps and the ActiveCampaign automation and turn the new system on, before ActiveCampaign renews on 31 October."),
+                ("Finish replacing keys", "Working through the remaining keys after the hosting provider's breach."),
+                ("PIF renewal reminders", "Built and testing: a message to each coach 30 days before a client's paid-in-full term ends, plus an alert if a client ends up paying twice."),
                 ("ActiveCampaign switch-off", "Move the last booked-call emails to Klaviyo or GoHighLevel so ActiveCampaign doesn't need renewing."),
                 ("UK to US Stripe moves", "Finishing client moves once they've signed up on the new link."),
                 ("Welcome Tee", "Built and testing; waiting on answers from the warehouse."),
