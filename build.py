@@ -50,19 +50,27 @@ p { margin: 0; max-width: 68ch; }
 section.part { display: flex; flex-direction: column; gap: 14px; border-top: 3px solid var(--fg); padding-top: 22px; scroll-margin-top: 16px; }
 section.part > .eyebrow { margin-bottom: -8px; }
 
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; align-items: start; }
-.stats details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
-.stats details[open] { border-color: var(--green); }
-.stats summary { list-style: none; cursor: pointer; padding: 16px; display: flex; flex-direction: column; gap: 4px; border-radius: 10px; }
-.stats summary::-webkit-details-marker { display: none; }
-.stats summary:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
-.stats b { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); line-height: 1.1; }
-.stats span { font-size: 14px; color: var(--muted); }
-.stats .more { font-size: 12px; font-weight: 600; color: var(--blue); margin-top: 6px; }
-.stats .more::after { content: " ▾"; }
-.stats details[open] .more::after { content: " ▴"; }
-.stats ul { margin: 0; padding: 0 16px 14px 32px; font-size: 14px; display: grid; gap: 3px; border-top: 1px solid var(--line); padding-top: 12px; }
-.stats ul small { color: var(--amber); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.stat { font: inherit; text-align: left; color: inherit; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 4px; transition: border-color .15s, transform .15s; }
+.stat:hover { border-color: var(--green); transform: translateY(-1px); }
+.stat:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.stat .big { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); line-height: 1.1; }
+.stat .lab { font-size: 14px; color: var(--muted); }
+.stat .more { font-size: 12px; font-weight: 600; color: var(--blue); margin-top: 6px; }
+dialog.pop { width: min(520px, calc(100% - 32px)); max-height: min(80vh, 680px); padding: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--fg); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+dialog.pop::backdrop { background: rgba(11,11,11,.55); }
+.pop-head { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: start; gap: 12px; padding: 16px 18px 12px; background: var(--surface); border-bottom: 1px solid var(--line); border-top: 4px solid var(--green); }
+.pop-head h3 { margin: 0; font-size: 17px; }
+.pop-head .n { color: var(--accent); }
+.pop-x { font: inherit; font-size: 22px; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 2px 6px; border-radius: 6px; }
+.pop-x:hover { color: var(--fg); background: var(--bg); }
+.pop-x:focus { outline: none; }
+.pop-x:focus-visible { outline: 2px solid var(--green); }
+.pop ul { list-style: none; margin: 0; padding: 6px 18px 16px; }
+.pop li { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.pop li:last-child { border-bottom: 0; }
+.pop li b { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+.pop li small { color: var(--amber); font-weight: 600; margin-left: 6px; }
 .cc { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 10px; padding: 14px 16px; }
 .cc p { font-size: 14px; color: var(--muted); }
 .cc p b { color: var(--fg); }
@@ -169,6 +177,17 @@ def h_blocks(blocks):
     return "\n".join(out)
 
 
+SCRIPT = """<script>
+document.querySelectorAll(".stat").forEach(function (b) {
+  b.addEventListener("click", function () { document.getElementById(b.dataset.pop).showModal(); });
+});
+document.querySelectorAll("dialog.pop").forEach(function (d) {
+  d.querySelector(".pop-x").addEventListener("click", function () { d.close(); });
+  d.addEventListener("click", function (ev) { if (ev.target === d) d.close(); });
+});
+</script>"""
+
+
 def where_html(w):
     # Only the physiqueacademy.com addresses become links; each one has its own login.
     if "physiqueacademy.com" in w and " " not in w:
@@ -199,16 +218,20 @@ def stat_items(src, html_out=False):
     if src == "platforms":
         return [e(r[0]) if html_out else r[0] for r in find_block("table", "platforms")[2]]
     if src == "reports":
-        return [(f"<b>{e(r[0])}:</b> {e(r[1])}" if html_out else f"{r[0]}: {r[1]}") for r in find_block("table", "rhythm")[2]]
+        return [(f"<b>{e(r[0])}</b>{e(r[1])}" if html_out else f"{r[0]}: {r[1]}") for r in find_block("table", "rhythm")[2]]
     return []
 
 
 def build_html():
     toc = "".join(f'<li><a href="#{s["id"]}"><span>{e(s["eyebrow"])}</span><em>{e(s["title"].split(":")[0])}</em></a></li>' for s in C.SECTIONS)
     stats = "".join(
-        f'<details><summary><b>{e(a)}</b><span>{e(t)}</span><span class="more">Show list</span></summary>'
-        f'<ul>{"".join(f"<li>{x}</li>" for x in stat_items(src, html_out=True))}</ul></details>'
-        for a, t, src in C.STATS)
+        f'<button class="stat" type="button" data-pop="pop{i}"><span class="big">{e(a)}</span><span class="lab">{e(t)}</span><span class="more">Show list</span></button>'
+        for i, (a, t, src) in enumerate(C.STATS))
+    pops = "".join(
+        f'<dialog class="pop" id="pop{i}" aria-labelledby="pop{i}h"><div class="pop-head"><h3 id="pop{i}h"><span class="n">{e(a)}</span> {e(t)}</h3>'
+        f'<button class="pop-x" type="button" aria-label="Close">&times;</button></div>'
+        f'<ul>{"".join(f"<li>{x}</li>" for x in stat_items(src, html_out=True))}</ul></dialog>'
+        for i, (a, t, src) in enumerate(C.STATS))
     parts = "".join(
         f'<section class="part" id="{s["id"]}"><div class="eyebrow">{e(s["eyebrow"])}</div><h2>{e(s["title"])}</h2>{h_blocks(s["blocks"])}</section>'
         for s in C.SECTIONS)
@@ -237,8 +260,10 @@ def build_html():
   <div class="stats">{stats}</div>
   <nav class="toc" aria-label="On this page"><h2>On this page</h2><p class="hint">Click a section to jump straight to it.</p><ol>{toc}</ol></nav>
   {parts}
+  {pops}
   <footer>{e(C.TITLE)} &middot; {e(C.UPDATED)}. No passwords or keys are kept on this page.</footer>
 </main>
+{SCRIPT}
 </body>
 </html>
 """
