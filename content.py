@@ -144,7 +144,7 @@ SECTIONS = [
                      "what": "9am briefing of today's confirmed calls, and the 11:55pm end-of-day sales report with an AI insight.",
                      "who": "Sales team, you", "when": "9am and 11:55pm daily",
                      "stop": "The team starts the day without a call list and there's no daily wrap-up."},
-                    {"name": "Booked Calls Tracker", "where": "bookedcalls.physiqueacademy.com", "status": "Live",
+                    {"name": "Booked Calls Tracker", "where": "source.physiqueacademy.com", "status": "Live",
                      "what": "Matches every sale back to its booked call so close rates per salesperson are real.",
                      "who": "You, me", "when": "Live", "stop": "Close rates can't be measured."},
                     {"name": "Lead Tracker and Lead Gen report", "where": "Private dashboard", "status": "Live",
