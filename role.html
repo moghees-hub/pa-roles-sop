@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Operations and Analytics Role</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root {
+  --bg: #f6f8f3; --surface: #ffffff; --fg: #16190f; --muted: #5f6655; --line: #dde3d4;
+  --accent: #5f9e1f; --green: #7ec837; --blue: #3b5bdb; --amber: #b8860b; --amber-bg: #fdf6e3;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11140d; --surface: #1a1e15; --fg: #eef2e6; --muted: #a3ab96; --line: #2d3324;
+    --accent: #9bdc5a; --blue: #7c93f0; --amber: #e0b54a; --amber-bg: #2a2412; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11140d; --surface: #1a1e15; --fg: #eef2e6; --muted: #a3ab96; --line: #2d3324;
+  --accent: #9bdc5a; --blue: #7c93f0; --amber: #e0b54a; --amber-bg: #2a2412; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55; padding: 0 16px; }
+main { max-width: 900px; margin: 0 auto; padding-block: 40px 64px; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 16px; font-weight: 700; margin-top: 6px; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.top { background: #0b0b0b; color: #fff; margin-inline: -16px; padding: 28px 16px 36px; border-bottom: 4px solid #7ec837; }
+.top-in { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.top .logo { width: 76px; height: auto; margin-bottom: 6px; }
+.top h1 { color: #fff; }
+.top h1 .hl { color: #7ec837; }
+.top .sub { color: #c9cfbf; font-size: 15px; }
+section.part { display: flex; flex-direction: column; gap: 14px; border-top: 3px solid var(--fg); padding-top: 22px; scroll-margin-top: 16px; }
+section.part > .eyebrow { margin-bottom: -8px; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.stat { font: inherit; text-align: left; color: inherit; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 4px; transition: border-color .15s, transform .15s; }
+.stat:hover { border-color: var(--green); transform: translateY(-1px); }
+.stat:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.stat .big { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); line-height: 1.1; }
+.stat .lab { font-size: 14px; color: var(--muted); }
+.stat .more { font-size: 12px; font-weight: 600; color: var(--blue); margin-top: 6px; }
+dialog.pop { width: min(520px, calc(100% - 32px)); max-height: min(80vh, 680px); padding: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--fg); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+dialog.pop::backdrop { background: rgba(11,11,11,.55); }
+.pop-head { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: start; gap: 12px; padding: 16px 18px 12px; background: var(--surface); border-bottom: 1px solid var(--line); border-top: 4px solid var(--green); }
+.pop-head h3 { margin: 0; font-size: 17px; }
+.pop-head .n { color: var(--accent); }
+.pop-x { font: inherit; font-size: 22px; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 2px 6px; border-radius: 6px; }
+.pop-x:hover { color: var(--fg); background: var(--bg); }
+.pop-x:focus { outline: none; }
+.pop-x:focus-visible { outline: 2px solid var(--green); }
+.pop ul { list-style: none; margin: 0; padding: 6px 18px 16px; }
+.pop li { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.pop li:last-child { border-bottom: 0; }
+.pop li b { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+.pop li small { color: var(--amber); font-weight: 600; margin-left: 6px; }
+.cc { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 10px; padding: 14px 16px; }
+.cc p { font-size: 14px; color: var(--muted); }
+.cc p b { color: var(--fg); }
+.cc a.btn { background: #0b0b0b; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: 8px; white-space: nowrap; }
+.cc a.btn:hover { background: #2a2f22; }
+.card .where .slack { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: #4a154b; border-radius: 4px; padding: 1px 5px; margin-right: 2px; vertical-align: 1px; }
+.opens { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.card a.open { display: inline-block; font-size: 13px; font-weight: 600; color: var(--blue); text-decoration: none; border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; }
+.card a.open:hover { border-color: var(--blue); }
+
+.toc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.toc h2 { font-size: 15px; margin-bottom: 4px; }
+.toc .hint { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.toc ol { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 4px 20px; }
+.toc a { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 4px 0; color: var(--fg); text-decoration: none; font-weight: 500; }
+.toc a span { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.toc a em { font-style: normal; color: var(--blue); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--blue) 40%, transparent); text-underline-offset: 3px; }
+.toc a:hover em { text-decoration-color: var(--blue); }
+
+ol.flow { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; }
+ol.flow li { counter-increment: s; position: relative; padding: 0 0 18px 48px; }
+ol.flow li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--green); color: #0b0b0b; font-weight: 800; display: grid; place-items: center; font-size: 14px; }
+ol.flow li::after { content: ""; position: absolute; left: 15px; top: 34px; bottom: 2px; width: 2px; background: var(--line); }
+ol.flow li:last-child::after { display: none; }
+ol.flow b { display: block; font-size: 16px; margin-bottom: 2px; padding-top: 4px; }
+
+ul.list { margin: 0; padding: 0; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+ul.list li { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 14px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+ul.list li:last-child { border-bottom: 0; }
+ul.list b { font-weight: 600; }
+
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+.group { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.group > h3 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--green); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.card.testing { border-top-color: var(--amber); }
+.card header { display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+.card h4 { margin: 0; font-size: 17px; }
+.card .where { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.pill { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; background: color-mix(in srgb, var(--green) 22%, transparent); color: var(--accent); white-space: nowrap; }
+.testing .pill { background: var(--amber-bg); color: var(--amber); }
+.card dl { margin: 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 6px 10px; font-size: 14px; }
+.card dt { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.card dd { margin: 0; }
+
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 640px) {
+  main { padding-block: 24px 48px; gap: 32px; }
+  body { font-size: 16px; }
+  .top { padding: 22px 16px 28px; } .top .logo { width: 64px; }
+  h2 { font-size: 21px; }
+  ul.list li { grid-template-columns: 1fr; gap: 2px; }
+  .toc a { grid-template-columns: 80px minmax(0, 1fr); }
+  table, thead, tbody, tr, td { display: block; }
+  thead { display: none; }
+  tr { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child { border-bottom: 0; }
+  td { padding: 2px 0; border: 0; white-space: normal !important; }
+  td:not(:first-child) { color: var(--muted); }
+  .card dl { grid-template-columns: 1fr; gap: 0; }
+  .card dd { margin-bottom: 6px; }
+}
+@media print {
+  body { background: #fff; }
+  .toc { display: none; }
+  .card, ul.list li, tr { break-inside: avoid; }
+  section.part { break-before: auto; }
+}
+
+.group h3 .own { font-size: 12px; letter-spacing: 0; text-transform: none; font-weight: 500; color: var(--muted); margin-left: 8px; }
+td.tbc { color: var(--amber); font-weight: 600; }
+td a, .chip { color: var(--blue); text-decoration: none; font-weight: 600; }
+td a:hover { text-decoration: underline; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.chip:hover { border-color: var(--blue); }
+.lead { font-size: 17px; max-width: 70ch; }
+.quote { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 10px; padding: 14px 16px; font-size: 15px; }
+.quote b { color: var(--accent); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <img class="logo" src="pa-logo-white.png" alt="Physique Academy" width="120" height="72">
+    <h1><span class="hl">Head of Operations and Analytics:</span> the numbers, in one place, every week</h1>
+    <div class="sub">Proposal by Moghees Siddique &middot; For the meeting on 28 October 2026</div>
+  </div>
+</header>
+<main>
+  <p class="lead">One person owns the numbers across lead gen, sales, marketing and revenue, brings them together every Monday, and holds each area to its targets through a short weekly call. George, Callum and I review the whole picture once a week and agree the actions.</p>
+  <nav class="toc" aria-label="On this page"><h2>On this page</h2><p class="hint">Click a section to jump straight to it.</p><ol><li><a href="#why"><span>Why</span><em>Why this role</em></a></li><li><a href="#owns"><span>The role</span><em>What I own</em></a></li><li><a href="#scorecard"><span>Scorecard</span><em>The weekly scorecard</em></a></li><li><a href="#rhythm"><span>Rhythm</span><em>The weekly rhythm</em></a></li><li><a href="#accountability"><span>Rules</span><em>How accountability works</em></a></li><li><a href="#built"><span>Already built</span><em>Where the data comes from</em></a></li><li><a href="#need"><span>Decisions</span><em>What I need from you</em></a></li><li><a href="#month"><span>Plan</span><em>The first month</em></a></li></ol></nav>
+  <section class="part" id="why"><div class="eyebrow">Why</div><h2>Why this role</h2><p>With Harry gone and Callum on marketing, nobody is holding the numbers together. This puts one person on it, with a fixed weekly rhythm.</p><div class="quote">George: <b>"Head of operations, analytics, data, everything all in one place.</b> Bring the data, hold people accountable to that data, bring it all together, and each week we go through it."</div></section><section class="part" id="owns"><div class="eyebrow">The role</div><h2>Head of Operations and Analytics: what I own</h2><ul class="list"><li><b>One scorecard</b><span>Every number the business runs on, in one place, locked every Monday for the week before.</span></li><li><b>Accountability</b><span>Each number has an owner and a target. When it is off target, the owner brings the reason and the fix.</span></li><li><b>Weekly calls</b><span>I run a short call with each area (lead gen, sales, marketing, revenue) and a weekly review with George and Callum.</span></li><li><b>The systems behind it</b><span>I keep the dashboards and automations that feed the numbers accurate and running, and build what is missing.</span></li></ul></section><section class="part" id="scorecard"><div class="eyebrow">Scorecard</div><h2>The weekly scorecard</h2><p>Draft list of numbers, where each one comes from today, and who owns it. Targets to be set together.</p><div class="group"><h3>Lead gen <span class="own">Owner: Callum and setters (Patrick, Amani, Jan)</span></h3><div class="table-wrap"><table><thead><tr><th>Number</th><th>Where it comes from</th><th>Weekly target</th></tr></thead><tbody><tr><td>New leads</td><td><a href="https://leads.physiqueacademy.com" target="_blank" rel="noopener">Lead Tracker</a></td><td class='tbc'>To set</td></tr><tr><td>Booked calls and booking rate</td><td><a href="https://source.physiqueacademy.com/#calls" target="_blank" rel="noopener">Booked Calls</a></td><td class='tbc'>To set</td></tr><tr><td>Show rate</td><td><a href="https://source.physiqueacademy.com/#calls" target="_blank" rel="noopener">Booked Calls</a></td><td class='tbc'>To set</td></tr><tr><td>Leads chased and recovered</td><td><a href="https://leadchase.physiqueacademy.com" target="_blank" rel="noopener">Lead Chase</a></td><td class='tbc'>To set</td></tr></tbody></table></div></div><div class="group"><h3>Sales <span class="own">Owner: Sales team</span></h3><div class="table-wrap"><table><thead><tr><th>Number</th><th>Where it comes from</th><th>Weekly target</th></tr></thead><tbody><tr><td>Calls taken</td><td><a href="https://sales.physiqueacademy.com" target="_blank" rel="noopener">Sales Dashboard</a></td><td class='tbc'>To set</td></tr><tr><td>Closes and close rate, per rep</td><td><a href="https://sales.physiqueacademy.com" target="_blank" rel="noopener">Sales Dashboard</a></td><td class='tbc'>To set</td></tr><tr><td>Cash collected</td><td><a href="https://sales.physiqueacademy.com" target="_blank" rel="noopener">Sales Dashboard</a></td><td class='tbc'>To set</td></tr><tr><td>Commission per rep</td><td><a href="https://commission-tracker-production-18a6.up.railway.app" target="_blank" rel="noopener">Commission Tracker</a></td><td class='tbc'>To set</td></tr></tbody></table></div></div><div class="group"><h3>Marketing <span class="own">Owner: Callum</span></h3><div class="table-wrap"><table><thead><tr><th>Number</th><th>Where it comes from</th><th>Weekly target</th></tr></thead><tbody><tr><td>Ad spend</td><td><a href="https://source.physiqueacademy.com" target="_blank" rel="noopener">HYROS</a></td><td class='tbc'>To set</td></tr><tr><td>Cost per lead and per booked call</td><td><a href="https://source.physiqueacademy.com" target="_blank" rel="noopener">HYROS</a></td><td class='tbc'>To set</td></tr><tr><td>Sales and revenue by source</td><td><a href="https://source.physiqueacademy.com" target="_blank" rel="noopener">HYROS</a></td><td class='tbc'>To set</td></tr></tbody></table></div></div><div class="group"><h3>Revenue and retention <span class="own">Owner: George and me, head coaches for retention</span></h3><div class="table-wrap"><table><thead><tr><th>Number</th><th>Where it comes from</th><th>Weekly target</th></tr></thead><tbody><tr><td>Money in (UK, US, UAE)</td><td><a href="https://stripe-overview-dashboard-production.up.railway.app" target="_blank" rel="noopener">Incoming Revenue</a></td><td class='tbc'>To set</td></tr><tr><td>Active clients and churn</td><td><a href="https://myclients.physiqueacademy.com" target="_blank" rel="noopener">My Clients</a></td><td class='tbc'>To set</td></tr><tr><td>Failed payments and recovered</td><td><a href="https://web-production-b6f83.up.railway.app" target="_blank" rel="noopener">Failed Payments</a></td><td class='tbc'>To set</td></tr><tr><td>Disputes and refunds</td><td><a href="https://radiant-reprieve-production.up.railway.app/dashboard" target="_blank" rel="noopener">Disputes</a></td><td class='tbc'>To set</td></tr><tr><td>Renewals due</td><td><a href="https://6-month-renewal-production.up.railway.app" target="_blank" rel="noopener">6-Month Renewals</a></td><td class='tbc'>To set</td></tr><tr><td>Retention by coach</td><td><a href="https://coach.physiqueacademy.com" target="_blank" rel="noopener">Coach Hub</a></td><td class='tbc'>To set</td></tr></tbody></table></div></div></section><section class="part" id="rhythm"><div class="eyebrow">Rhythm</div><h2>The weekly rhythm</h2><p>Short, fixed calls. Days and times to agree.</p><div class="table-wrap"><table><thead><tr><th>Day</th><th>What</th><th>Who</th><th>Covers</th></tr></thead><tbody><tr><td>Monday</td><td><b>Scorecard locked</b></td><td>Me</td><td>Last week&#x27;s numbers pulled into one place and shared before any call</td></tr><tr><td>Tuesday</td><td><b>Lead gen call</b></td><td>Callum, setters, me</td><td>Leads, bookings, show rate, chase list</td></tr><tr><td>Tuesday</td><td><b>Sales call</b></td><td>Sales team, me</td><td>Calls, closes, close rate, cash, per rep</td></tr><tr><td>Wednesday</td><td><b>Marketing call</b></td><td>Callum, me</td><td>Spend, cost per lead, what is working by source</td></tr><tr><td>Wednesday</td><td><b>Revenue and retention</b></td><td>George, me</td><td>Money in, churn, failed payments, disputes, coach retention</td></tr><tr><td>Thursday</td><td><b>Weekly review</b></td><td>George, Callum, me</td><td>Whole scorecard, what is off target, actions agreed</td></tr><tr><td>Friday</td><td><b>Actions chased</b></td><td>Me</td><td>Every action from the week checked against its owner and deadline</td></tr></tbody></table></div></section><section class="part" id="accountability"><div class="eyebrow">Rules</div><h2>How accountability works</h2><ol class="flow"><li><b>Every number has one owner</b>Not a team. One name, so it is clear who answers for it.</li><li><b>Every number has a target</b>Set by George. Green on target, amber close, red off target.</li><li><b>Red means a reason and a fix</b>The owner brings both to their weekly call, not just the number.</li><li><b>Every fix gets an action</b>Written down with an owner and a deadline, checked the following week.</li><li><b>Repeat reds go to George</b>Two weeks red in a row comes up in the weekly review.</li></ol></section><section class="part" id="built"><div class="eyebrow">Already built</div><h2>Where the data comes from</h2><p>Most of the data is already flowing through dashboards I have built. Click any of them to open it. The job now is pulling them into one scorecard and running the weeks off it.</p><div class="chips"><a class="chip" href="https://leads.physiqueacademy.com" target="_blank" rel="noopener">Lead Tracker</a><a class="chip" href="https://source.physiqueacademy.com/#calls" target="_blank" rel="noopener">Booked Calls</a><a class="chip" href="https://leadchase.physiqueacademy.com" target="_blank" rel="noopener">Lead Chase</a><a class="chip" href="https://sales.physiqueacademy.com" target="_blank" rel="noopener">Sales Dashboard</a><a class="chip" href="https://commission-tracker-production-18a6.up.railway.app" target="_blank" rel="noopener">Commission Tracker</a><a class="chip" href="https://source.physiqueacademy.com" target="_blank" rel="noopener">HYROS</a><a class="chip" href="https://stripe-overview-dashboard-production.up.railway.app" target="_blank" rel="noopener">Incoming Revenue</a><a class="chip" href="https://web-production-b6f83.up.railway.app" target="_blank" rel="noopener">Failed Payments</a><a class="chip" href="https://radiant-reprieve-production.up.railway.app/dashboard" target="_blank" rel="noopener">Disputes</a><a class="chip" href="https://6-month-renewal-production.up.railway.app" target="_blank" rel="noopener">6-Month Renewals</a><a class="chip" href="https://myclients.physiqueacademy.com" target="_blank" rel="noopener">My Clients</a><a class="chip" href="https://coach.physiqueacademy.com" target="_blank" rel="noopener">Coach Hub</a></div></section><section class="part" id="need"><div class="eyebrow">Decisions</div><h2>What I need from George and Callum</h2><ul class="list"><li><b>Targets</b><span>A weekly target for each number on the scorecard, so we measure against something.</span></li><li><b>Owners confirmed</b><span>Agree who owns each area (draft owners are in the scorecard below).</span></li><li><b>Call times</b><span>Fixed slots each week for the calls, so they become routine.</span></li><li><b>What comes off my plate</b><span>Decide which current jobs (website builds, design, clothing, admin) move to someone else or stop, so this role gets the time it needs.</span></li></ul></section><section class="part" id="month"><div class="eyebrow">Plan</div><h2>The first month</h2><ol class="flow"><li><b>Week 1</b>Agree targets, owners and call times. I build the first scorecard by hand from the dashboards.</li><li><b>Week 2</b>First full week of calls. Find the gaps: numbers we cannot see yet or do not trust.</li><li><b>Week 3</b>Scorecard page live in the Command Center, filling itself from the dashboards each Monday.</li><li><b>Week 4</b>Review with George and Callum: what to keep, cut or change in the rhythm.</li></ol></section>
+  <div class="cc"><p><b>Current role and systems</b> are on the Roles and Responsibilities page.</p><a class="btn" href="./">Open Roles and Responsibilities</a></div>
+  <footer>Proposal, Physique Academy &middot; For the meeting on 28 October 2026. No passwords or keys are kept on this page.</footer>
+</main>
+</body>
+</html>
