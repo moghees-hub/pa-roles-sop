@@ -117,7 +117,7 @@ SECTIONS = [
                      "what": "Alerts the moment a client payment fails, and again when it's recovered, with the coach's name.",
                      "who": "Team, coaches", "when": "Every 5 minutes",
                      "stop": "Failed payments go unnoticed and aren't chased."},
-                    {"name": "Disputes", "where": "", "slack": "#client-disputes", "url": "https://disputes.physiqueacademy.com", "status": "Live",
+                    {"name": "Disputes", "where": "", "slack": "#client-disputes", "url": "https://radiant-reprieve-production.up.railway.app/dashboard", "status": "Live",
                      "what": "Tracks every chargeback and its deadline, posts UAE and US disputes to Slack and DMs the coach. (UK disputes still post via a Zapier zap.)",
                      "who": "Whoever handles disputes, coaches", "when": "Every 15 minutes",
                      "stop": "Disputes can miss their evidence deadline."},
