@@ -76,7 +76,10 @@ dialog.pop::backdrop { background: rgba(11,11,11,.55); }
 .cc p b { color: var(--fg); }
 .cc a.btn { background: #0b0b0b; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: 8px; white-space: nowrap; }
 .cc a.btn:hover { background: #2a2f22; }
-.card .where a { color: var(--blue); text-underline-offset: 3px; }
+.card .where .slack { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: #4a154b; border-radius: 4px; padding: 1px 5px; margin-right: 2px; vertical-align: 1px; }
+.opens { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.card a.open { display: inline-block; font-size: 13px; font-weight: 600; color: var(--blue); text-decoration: none; border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; }
+.card a.open:hover { border-color: var(--blue); }
 
 .toc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
 .toc h2 { font-size: 15px; margin-bottom: 4px; }
@@ -169,10 +172,10 @@ def h_blocks(blocks):
                 for s in g["items"]:
                     cls = "card testing" if s["status"] != "Live" else "card"
                     cards.append(
-                        f'<article class="{cls}"><header><div><h4>{e(s["name"])}</h4><div class="where">{where_html(s["where"])}</div></div>'
+                        f'<article class="{cls}"><header><div><h4>{e(s["name"])}</h4>{where_html(s)}</div>'
                         f'<span class="pill">{e(s["status"])}</span></header><p>{e(s["what"])}</p><dl>'
                         f'<dt>Who uses it</dt><dd>{e(s["who"])}</dd><dt>When</dt><dd>{e(s["when"])}</dd>'
-                        f'<dt>If it stops</dt><dd>{e(s["stop"])}</dd></dl></article>')
+                        f'<dt>If it stops</dt><dd>{e(s["stop"])}</dd></dl>{open_links(s)}</article>')
                 out.append(f'<div class="group"><h3>{e(g["name"])}</h3><div class="cards">{"".join(cards)}</div></div>')
     return "\n".join(out)
 
@@ -188,11 +191,21 @@ document.querySelectorAll("dialog.pop").forEach(function (d) {
 </script>"""
 
 
-def where_html(w):
-    # Only the physiqueacademy.com addresses become links; each one has its own login.
-    if "physiqueacademy.com" in w and " " not in w:
-        return f'<a href="https://{e(w)}" target="_blank" rel="noopener">{e(w)}</a>'
-    return e(w)
+def where_html(s):
+    bits = []
+    if s.get("slack"):
+        bits.append(f'<span class="slack">Slack</span> {e(s["slack"])}')
+    if s.get("where"):
+        bits.append(e(s["where"]))
+    return f'<div class="where">{" &middot; ".join(bits)}</div>' if bits else ""
+
+
+def open_links(s):
+    out = []
+    for k, label in (("url", "link"), ("url2", "link2")):
+        if s.get(k):
+            out.append(f'<a class="open" href="{e(s[k])}" target="_blank" rel="noopener">{e(s.get(label) or "Open dashboard")} &#8599;</a>')
+    return f'<div class="opens">{"".join(out)}</div>' if out else ""
 
 
 def find_block(kind, section_id=None):
@@ -333,9 +346,12 @@ def d_blocks(doc, blocks):
                     m = head[0].merge(head[1])
                     m.text = ""
                     r = m.paragraphs[0].add_run(s["name"]); r.bold = True; r.font.size = Pt(11)
-                    r2 = m.paragraphs[0].add_run(f'   {s["where"]}   [{s["status"]}]'); r2.font.size = Pt(9); r2.font.color.rgb = MUTED
+                    r2 = m.paragraphs[0].add_run(f'   [{s["status"]}]'); r2.font.size = Pt(9); r2.font.color.rgb = MUTED
                     shade(m, "E9F3DD" if s["status"] == "Live" else "FDF0D0")
-                    for label, key in (("What it does", "what"), ("Who uses it", "who"), ("When", "when"), ("If it stops", "stop")):
+                    for label, key in (("What it does", "what"), ("Who uses it", "who"), ("When", "when"), ("If it stops", "stop"),
+                                       ("Slack", "slack"), ("Where", "where"), ("Link", "url"), ("Link", "url2")):
+                        if not s.get(key):
+                            continue
                         c = t.add_row().cells
                         c[0].text = ""; c[1].text = ""
                         rr = c[0].paragraphs[0].add_run(label); rr.bold = True; rr.font.size = Pt(9.5)
