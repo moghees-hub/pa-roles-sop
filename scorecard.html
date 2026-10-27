@@ -82,14 +82,20 @@ main { padding: 18px 24px 96px; display: flex; flex-direction: column; gap: 16px
 .mod h2 .hint { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--muted); }
 
 /* Stat tiles */
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
-.tile { padding: 10px 14px 12px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
-.tile:nth-child(4n+1) { border-left: 0; }
-.tile:nth-child(-n+4) { border-top: 0; }
-.tile .k { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
-.tile .k em { font-style: normal; color: var(--faint); }
-.tile .v { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0 6px; font-variant-numeric: tabular-nums; }
-.tile .t { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tile { position: relative; padding: 12px 14px 12px 16px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.tile::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--line); }
+.tile.good::before { background: var(--good); } .tile.warn::before { background: var(--warn); } .tile.bad::before { background: var(--bad); }
+.tile .k { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tile .v { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin: 2px 0 4px; font-variant-numeric: tabular-nums; }
+.tile .chg { display: flex; justify-content: space-between; align-items: end; gap: 8px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.tile .chg b { font-weight: 700; }
+.tile .chg b.up { color: var(--good); } .tile .chg b.dn { color: var(--bad); }
+.tile .chg small { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+.spark { display: flex; align-items: end; gap: 2px; height: 18px; flex: none; }
+.spark i { width: 4px; border-radius: 2px 2px 0 0; background: var(--track); }
+.spark i.cur.up { background: var(--good); } .spark i.cur.dn { background: var(--bad); }
+.tile .t { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
 .st { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 7px 2px 5px; border-radius: 99px; white-space: nowrap; }
 .st svg { width: 11px; height: 11px; }
 .st.good { color: var(--good); background: var(--good-bg); }
@@ -102,6 +108,7 @@ main { padding: 18px 24px 96px; display: flex; flex-direction: column; gap: 16px
 .fstep .row b { font-weight: 600; }
 .fstep .row span { color: var(--muted); font-variant-numeric: tabular-nums; }
 .fstep .bar { height: 10px; }
+.fstep .was { color: var(--faint); font-size: 12px; }
 .fstep .bar i { background: var(--accent); }
 
 /* Donut */
@@ -167,9 +174,6 @@ dialog::backdrop { background: rgba(11,11,11,.5); }
 
 @media (max-width: 1100px) {
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tile:nth-child(n) { border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
-  .tile:nth-child(2n+1) { border-left: 0; }
-  .tile:nth-child(-n+2) { border-top: 0; }
 }
 @media (max-width: 860px) {
   .app { grid-template-columns: 1fr; }
@@ -184,8 +188,6 @@ dialog::backdrop { background: rgba(11,11,11,.5); }
 }
 @media (max-width: 340px) {
   .tiles { grid-template-columns: 1fr; }
-  .tile:nth-child(n) { border-left: 0; border-top: 1px solid var(--line); }
-  .tile:first-child { border-top: 0; }
 }
 </style>
 </head>
@@ -305,6 +307,8 @@ var WEEKS = [
   { id: "w42", label: "Week of 12 Oct 2026", m: 0.94 },
   { id: "w41", label: "Week of 5 Oct 2026", m: 1.06 }
 ];
+// Multipliers for each week back from 19 Oct, so every week has a previous week to compare to.
+var HIST = [1, 0.94, 1.06, 0.98, 1.03, 0.91];
 var MKT = { all: 1, uk: 0.6, us: 0.28, uae: 0.12 };
 
 var STATUS_ICON = {
@@ -314,16 +318,16 @@ var STATUS_ICON = {
 };
 var STATUS_LAB = { good: "On target", warn: "Close", bad: "Off target" };
 
-// v = base value, t = target, hi = higher is better, fmt, scale = moves with market filter
+// h = last 6 weeks, newest first, v = base value, t = target, hi = higher is better, fmt, scale = moves with market filter
 var TILES = [
-  { k: "Cash collected", area: "sales rev", v: 48250, t: 50000, hi: true, fmt: "gbp", scale: true },
-  { k: "New clients", area: "sales", v: 24, t: 25, hi: true, fmt: "n", scale: true },
-  { k: "New leads", area: "lead mkt", v: 412, t: 400, hi: true, fmt: "n", scale: true },
-  { k: "Booked calls", area: "lead", v: 138, t: 130, hi: true, fmt: "n", scale: true },
-  { k: "Show rate", area: "lead sales", v: 70, t: 75, hi: true, fmt: "pct" },
-  { k: "Close rate", area: "sales", v: 24.7, t: 25, hi: true, fmt: "pct" },
-  { k: "Cost per lead", area: "mkt", v: 9.4, t: 10, hi: false, fmt: "gbp2" },
-  { k: "Monthly churn", area: "rev", v: 3.6, t: 3, hi: false, fmt: "pct" }
+  { k: "Cash collected", h: [48250, 45355, 51200, 46900, 39600, 44200], area: "sales rev", v: 48250, t: 50000, hi: true, fmt: "gbp", scale: true },
+  { k: "New clients", h: [24, 23, 27, 22, 19, 21], area: "sales", v: 24, t: 25, hi: true, fmt: "n", scale: true },
+  { k: "New leads", h: [412, 387, 436, 398, 371, 402], area: "lead mkt", v: 412, t: 400, hi: true, fmt: "n", scale: true },
+  { k: "Booked calls", h: [138, 130, 147, 129, 118, 133], area: "lead", v: 138, t: 130, hi: true, fmt: "n", scale: true },
+  { k: "Show rate", h: [70, 73.5, 76, 72, 74, 71], area: "lead sales", v: 70, t: 75, hi: true, fmt: "pct" },
+  { k: "Close rate", h: [24.7, 25.6, 26.8, 23.9, 22.1, 24.4], area: "sales", v: 24.7, t: 25, hi: true, fmt: "pct" },
+  { k: "Cost per lead", h: [9.4, 10.2, 8.9, 9.8, 10.6, 9.9], area: "mkt", v: 9.4, t: 10, hi: false, fmt: "gbp2" },
+  { k: "Monthly churn", h: [3.6, 3.2, 2.9, 3.1, 3.4, 3.0], area: "rev", v: 3.6, t: 3, hi: false, fmt: "pct" }
 ];
 
 var SOURCES = [["Instagram", 46], ["Facebook", 28], ["Google", 14], ["Referral and other", 12]];
@@ -365,25 +369,40 @@ function status(v, t, hi) {
 function pill(s) { return '<span class="st ' + s + '">' + STATUS_ICON[s] + STATUS_LAB[s] + "</span>"; }
 function inArea(tags) { return state.area === "all" || tags.split(" ").indexOf(state.area) > -1; }
 
+function tileVal(x, wi) {
+  return x.h[wi] * (x.scale ? MKT[state.mkt] : 1);
+}
+function change(v, p, hi, f) {
+  var d = f === "pct" ? v - p : (v - p) / p * 100, better = hi ? d >= 0 : d <= 0;
+  return { cls: better ? "up" : "dn", txt: (d >= 0 ? "▲ " : "▼ ") + Math.abs(d).toFixed(1).replace(/\.0$/, "") + (f === "pct" ? " pts" : "%") };
+}
+
 function renderTiles() {
-  var wm = WEEKS[state.week].m, mm = MKT[state.mkt];
+  var mm = MKT[state.mkt], wi = state.week;
   $("tiles").innerHTML = TILES.filter(function (x) { return inArea(x.area); }).map(function (x) {
-    var v = x.scale ? x.v * wm * mm : (x.fmt === "pct" ? x.v * (0.97 + 0.03 * wm) : x.v / wm);
+    var v = tileVal(x, wi), p = tileVal(x, wi + 1);
     var t = x.scale ? x.t * mm : x.t;
-    var s = status(v, t, x.hi);
-    return '<div class="tile"><div class="k">' + x.k + '</div><div class="v">' + fmt(v, x.fmt) +
-      '</div><div class="t">' + pill(s) + "<span>Target " + fmt(t, x.fmt) + "</span></div></div>";
+    var s = status(v, t, x.hi), c = change(v, p, x.hi, x.fmt);
+    var hist = [3, 2, 1, 0].map(function (k) { return tileVal(x, wi + k); });
+    var max = Math.max.apply(null, hist);
+    var spark = hist.map(function (h, k) {
+      return '<i class="' + (k === 3 ? "cur " + c.cls : "") + '" style="height:' + Math.max(25, h / max * 100).toFixed(0) + '%"></i>';
+    }).join("");
+    return '<div class="tile ' + s + '"><div class="k">' + x.k + '</div><div class="v">' + fmt(v, x.fmt) +
+      '</div><div class="chg"><div><b class="' + c.cls + '">' + c.txt + ' vs last week</b><small>Last week ' + fmt(p, x.fmt) +
+      '</small></div><span class="spark" title="Last 4 weeks">' + spark + '</span></div><div class="t">' + pill(s) + "<span>Target " + fmt(t, x.fmt) + "</span></div></div>";
   }).join("");
 }
 
 function renderFunnel() {
-  var m = WEEKS[state.week].m * MKT[state.mkt];
+  var m = HIST[state.week] * MKT[state.mkt], pm = HIST[state.week + 1] * MKT[state.mkt];
   var steps = [["Leads", 412], ["Booked a call", 138], ["Showed up", 97], ["Became a client", 24]];
   var top = steps[0][1] * m;
   $("funnel").innerHTML = steps.map(function (s, i) {
     var v = s[1] * m, prev = i ? steps[i - 1][1] * m : v;
     var note = i ? Math.round(v / prev * 100) + "% of previous" : "100%";
     return '<div class="fstep"><div class="row"><b>' + s[0] + "</b><span>" + Math.round(v) + " &middot; " + note +
+      ' <small class="was">(last week ' + Math.round(s[1] * pm) + ")</small>" +
       '</span></div><div class="bar"><i style="width:' + (v / top * 100).toFixed(1) + '%"></i></div></div>';
   }).join("");
 }
